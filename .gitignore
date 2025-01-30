@@ -1,0 +1,61 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Dependency directories
+vendor/
+bin/
+pkg/
+
+# Go workspace file
+go.work
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+
+# IDE-specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+
+# JetBrains IDEs (e.g., GoLand, IntelliJ)
+.idea_modules/
+*.iml
+
+# GoLand
+.idea/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Test and coverage outputs
+coverage.txt
+profile.cov
+*.cover
+
+# Local development files
+tmp/
+dist/
+build/
+
+# Log files
+*.log
+
+# Go modules (uncomment if you don't want to commit go.sum)
+# go.sum
+
+# Optional: Ignore generated files (protobuf, mock files, etc.)
+*.pb.go
+*mock*.go
