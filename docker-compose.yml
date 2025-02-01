@@ -2,61 +2,43 @@ version: '3.8'
 
 services:
   api:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.api
+    build: .
     ports:
       - "8080:8080"
     depends_on:
       - postgres
       - mongodb
-      - kafka
-      - zookeeper
+      - rabbitmq
     environment:
-      - POSTGRES_URL=postgresql://banking:banking@postgres:5432/banking?sslmode=disable
-      - MONGO_URL=mongodb://mongodb:27017
-      - KAFKA_BROKERS=kafka:9092
-      - KAFKA_TOPIC=transactions
-      - KAFKA_GROUP_ID=banking-group
-      - SERVER_PORT=8080
+      - DB_HOST=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - DB_NAME=banking_ledger
+      - MONGODB_URI=mongodb://mongodb:27017
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
     networks:
       - banking-network
 
   postgres:
-    image: postgres:14-alpine
+    image: postgres:latest
     environment:
-      - POSTGRES_USER=banking
-      - POSTGRES_PASSWORD=banking
-      - POSTGRES_DB=banking
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=banking_ledger
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./migrations/postgres:/docker-entrypoint-initdb.d
-    ports:
-      - "5432:5432"
     networks:
       - banking-network
 
   mongodb:
-    image: mongo:5
+    image: mongo:latest
     volumes:
       - mongodb_data:/data/db
-    ports:
-      - "27017:27017"
-    networks:
-      - banking-network
-
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.3.0
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "2181:2181"
     networks:
       - banking-network
 
   kafka:
-    image: confluentinc/cp-kafka:7.3.0
+    image: confluentinc/cp-kafka:latest
     depends_on:
       - zookeeper
     ports:
@@ -68,13 +50,19 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    networks:
-      - banking-network
 
-volumes:
-  postgres_data:
-  mongodb_data:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
 
 networks:
   banking-network:
     driver: bridge
+
+volumes:
+  postgres_data:
+  mongodb_data:
